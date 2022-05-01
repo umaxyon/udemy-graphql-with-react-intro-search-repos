@@ -1,15 +1,8 @@
 import React from 'react'
 import { ApolloProvider, gql, useQuery } from '@apollo/client'
 import client from './client'
+import { Me } from './graphql'
 
-const Me = gql`
-query me {
-  user(login: "umaxyon") {
-    name
-    avatarUrl
-  }
-}
-`
 
 const Body = () => {
   const { loading, error, data } = useQuery(Me)
