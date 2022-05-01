@@ -12,7 +12,7 @@ query me {
 `
 
 const Body = () => {
-  const { loading, error, data} = useQuery(Me)
+  const { loading, error, data } = useQuery(Me)
   return (
     <div>
     {
