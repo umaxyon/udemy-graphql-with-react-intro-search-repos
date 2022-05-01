@@ -1,11 +1,27 @@
-import React from 'react'
-import { ApolloProvider, gql, useQuery } from '@apollo/client'
+import React, { useEffect, useState } from 'react'
+import { ApolloProvider, useQuery } from '@apollo/client'
 import client from './client'
-import { Me } from './graphql'
+import { SEARCH_REPOSITORIES } from './graphql'
 
+const VARIABLES = {
+  "first": 5,
+  "after": null,
+  "last":  null,
+  "before": null,
+  "query": "フロントエンドエンジニア"
+}
 
 const Body = () => {
-  const { loading, error, data } = useQuery(Me)
+  const [state, setState] = useState({})
+  const { loading, error, data } = useQuery(SEARCH_REPOSITORIES, { variables: state })
+  useEffect(() => {
+    setState(VARIABLES)
+  },[])
+
+  const { query, first, last, before, after } = state
+
+  console.log(data)
+
   return (
     <div>
     {
@@ -13,7 +29,7 @@ const Body = () => {
       ) : (error) ? (
         `Error! ${error.message}`
       ) : (
-        data.user.name
+        <></>
       )
     }
     </div>
@@ -25,7 +41,6 @@ function App() {
   
   return (
     <ApolloProvider client={client}>
-      <div>Hello GraphQL </div>
       <Body />
     </ApolloProvider>
   );
