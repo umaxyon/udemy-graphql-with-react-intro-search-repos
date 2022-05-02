@@ -24,14 +24,29 @@ const Body = () => {
   }
 
   console.log({query})
-  if (!loading && !error) console.log(data.search)
   
   const render = () => {
+    console.log(data.search)
     const search = data.search;
     const repositoryCount = search.repositoryCount;
     const repositoryUnit = repositoryCount === 1 ? 'Repository' : 'Repositories'
     const title = <h2>GitHub Repositories Search Results - {data.search.repositoryCount} {repositoryUnit}</h2>
-    return title
+    return (
+      <>
+        {title}
+        <ul>
+          {search.edges.map(edge => {
+            const { node } = edge;
+            return (
+              <li key={node.id}>
+                <a href={node.url} target="_blank">{node.name}</a>
+              </li>
+            )
+          })}
+        </ul>
+      </>
+      
+    )
   }
   return (
     <form>
