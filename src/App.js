@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { ApolloProvider, useQuery, useMutation } from '@apollo/client'
 import client from './client'
-import { SEARCH_REPOSITORIES, ADD_STAR } from './graphql'
+import { SEARCH_REPOSITORIES, ADD_STAR, REMOVE_STAR } from './graphql'
 
 const PER_PAGE = 5
 const DEFAULT_STATE = {
@@ -13,15 +13,17 @@ const DEFAULT_STATE = {
 }
 
 const StarButton = props => {
-  const { node, addStar } = props
+  const { node, addStar, removeStar } = props
   const totalCount = node.stargazers.totalCount
   const viewerHasStarred = node.viewerHasStarred
   const starCount = totalCount === 1? "1 star": `${totalCount} stars`
 
+  const toggleStar = !viewerHasStarred ? addStar : removeStar
+
   const StarStatus = () => {
     return (
       <button type="button" onClick={() => { 
-          addStar( { variables: {
+        toggleStar( { variables: {
             input: { starrableId: node.id }
           }})
       }}>{starCount} | {viewerHasStarred ? 'stared': '-'}</button>
@@ -36,6 +38,7 @@ const Body = () => {
   const [ state, setState ] = useState(DEFAULT_STATE)
   const { loading, error, data, refetch } = useQuery(SEARCH_REPOSITORIES, { variables: state })
   const [ addStar ] = useMutation(ADD_STAR, { onCompleted: () => refetch() })
+  const [ removeStar ] = useMutation(REMOVE_STAR, { onCompleted: () => refetch() })
 
   const { query } = state
 
@@ -77,7 +80,7 @@ const Body = () => {
             return (
               <li key={node.id}>
                 <a href={node.url} target="_blank" rel="noopener noreferrer">{node.name}</a> &nbsp;
-                <StarButton node={node} addStar={addStar}/>
+                <StarButton node={node} addStar={addStar} removeStar={removeStar}/>
               </li>
             )
           })}
