@@ -26,10 +26,15 @@ const Body = () => {
   const goNext = (search) => {
     setState({
       ...state,
-      first: PER_PAGE,
-      after: search.pageInfo.endCursor,
-      last: null,
-      before: null
+      first: PER_PAGE, after: search.pageInfo.endCursor,
+      last: null, before: null
+    })
+  }
+  const goPrevious = (search) => {
+    setState({
+      ...state,
+      first: null, after: null,
+      last: PER_PAGE, before: search.pageInfo.startCursor
     })
   }
 
@@ -55,6 +60,7 @@ const Body = () => {
             )
           })}
         </ul>
+        {search.pageInfo.hasPreviousPage ? <button onClick={() => goPrevious(search)}>Previous</button> : null}
         {search.pageInfo.hasNextPage ? <button onClick={() => goNext(search)}>Next</button> : null}
         
       </>
