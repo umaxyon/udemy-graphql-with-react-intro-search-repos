@@ -13,9 +13,13 @@ const DEFAULT_STATE = {
 }
 
 const StarButton = props => {
-  console.log(props.node);
-  const totalCount = props.node.stargazers.totalCount
-  return <button>{totalCount === 1? "1 star": `${totalCount} stars`}</button>
+  const { node } = props
+  const totalCount = node.stargazers.totalCount
+  const viewerHasStarred = node.viewerHasStarred
+  const starCount = totalCount === 1? "1 star": `${totalCount} stars`
+  return (
+    <button>{starCount} | {viewerHasStarred ? 'stared': '-'}</button>
+  )
 }
 
 
