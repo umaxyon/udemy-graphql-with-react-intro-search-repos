@@ -35,3 +35,13 @@ query searchRepo($first: Int, $after: String, $last: Int, $before: String, $quer
     }  
    }
 `
+export const ADD_STAR = gql`
+mutation addStar ($input: AddStarInput!) {
+    addStar (input: $input) {
+      starrable {
+        id
+        viewerHasStarred
+      }
+    }
+  }
+`
