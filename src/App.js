@@ -3,7 +3,7 @@ import { ApolloProvider, useQuery } from '@apollo/client'
 import client from './client'
 import { SEARCH_REPOSITORIES } from './graphql'
 
-const VARIABLES = {
+const DEFAULT_STATE = {
   "first": 5,
   "after": null,
   "last":  null,
@@ -12,18 +12,22 @@ const VARIABLES = {
 }
 
 const Body = () => {
-  const [state, setState] = useState({})
+  const [state, setState] = useState(DEFAULT_STATE)
   const { loading, error, data } = useQuery(SEARCH_REPOSITORIES, { variables: state })
-  useEffect(() => {
-    setState(VARIABLES)
-  },[])
 
   const { query, first, last, before, after } = state
 
-  console.log(data)
+  const handleChange = (e) => {
+    setState({
+      ...DEFAULT_STATE, query: e.target.value
+    })
+  }
+
+  console.log({query})
 
   return (
-    <div>
+    <form>
+      <input value={query} onChange={handleChange} />
     {
       (loading) ? ( 'Loading...' 
       ) : (error) ? (
@@ -32,7 +36,7 @@ const Body = () => {
         <></>
       )
     }
-    </div>
+    </form>
   )
 }
 
