@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { ApolloProvider, useQuery } from '@apollo/client'
 import client from './client'
 import { SEARCH_REPOSITORIES } from './graphql'
 
+const PER_PAGE = 5
 const DEFAULT_STATE = {
-  "first": 5,
+  "first": PER_PAGE,
   "after": null,
   "last":  null,
   "before": null,
@@ -12,16 +13,26 @@ const DEFAULT_STATE = {
 }
 
 const Body = () => {
-  const [state, setState] = useState(DEFAULT_STATE)
+  const [ state, setState ] = useState(DEFAULT_STATE)
   const { loading, error, data } = useQuery(SEARCH_REPOSITORIES, { variables: state })
 
-  const { query, first, last, before, after } = state
+  const { query } = state
 
   const handleChange = (e) => {
     setState({
       ...DEFAULT_STATE, query: e.target.value
     })
   }
+  const goNext = (search) => {
+    setState({
+      ...state,
+      first: PER_PAGE,
+      after: search.pageInfo.endCursor,
+      last: null,
+      before: null
+    })
+  }
+
 
   console.log({query})
   
@@ -39,18 +50,20 @@ const Body = () => {
             const { node } = edge;
             return (
               <li key={node.id}>
-                <a href={node.url} target="_blank">{node.name}</a>
+                <a href={node.url} target="_blank" rel="noopener noreferrer">{node.name}</a>
               </li>
             )
           })}
         </ul>
+        {search.pageInfo.hasNextPage ? <button onClick={() => goNext(search)}>Next</button> : null}
+        
       </>
       
     )
   }
   return (
     <form>
-      <input value={query} onChange={handleChange} />
+      <input value={query || ""} onChange={handleChange} />
     {
       (loading) ? (
         'Loading...' 
