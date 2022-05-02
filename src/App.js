@@ -13,7 +13,7 @@ const DEFAULT_STATE = {
 }
 
 const StarButton = props => {
-  const { node, addStar, removeStar } = props
+  const { node, addStar, removeStar, state } = props
   const totalCount = node.stargazers.totalCount
   const viewerHasStarred = node.viewerHasStarred
   const starCount = totalCount === 1? "1 star": `${totalCount} stars`
@@ -23,9 +23,32 @@ const StarButton = props => {
   const StarStatus = () => {
     return (
       <button type="button" onClick={() => { 
-        toggleStar( { variables: {
+        toggleStar({
+          variables: {
             input: { starrableId: node.id }
-          }})
+          },
+          update: (store, { data: { addStar, removeStar }}) => {
+            const data = store.readQuery({
+              query: SEARCH_REPOSITORIES,
+              variables: state
+            })
+            const { edges } = data.search
+            const { starrable } = addStar || removeStar
+            const newEdges = edges.map(edge => {
+              if (edge.node.id === node.id) {
+                const totalCount = edge.node.stargazers.totalCount
+                // const diff = viewerHasStarred ? -1: 1
+                const diff = starrable.viewerHasStarred ? 1 : -1
+                const newTotalCount = totalCount + diff
+                return { ...edge, node: {...edge.node, stargazers: {...edge.node.stargazers, totalCount: newTotalCount }}}
+              }
+              return edge
+            })
+            const newData = { ...data, search: {...data.search, edges: newEdges } }
+            store.writeQuery({ query: SEARCH_REPOSITORIES, data: newData })
+            // console.log({data})
+          }
+        })
       }}>{starCount} | {viewerHasStarred ? 'stared': '-'}</button>
     )
   }
@@ -37,8 +60,8 @@ const StarButton = props => {
 const Body = () => {
   const [ state, setState ] = useState(DEFAULT_STATE)
   const { loading, error, data, refetch } = useQuery(SEARCH_REPOSITORIES, { variables: state })
-  const [ addStar ] = useMutation(ADD_STAR, { onCompleted: () => refetch() })
-  const [ removeStar ] = useMutation(REMOVE_STAR, { onCompleted: () => refetch() })
+  const [ addStar ] = useMutation(ADD_STAR)
+  const [ removeStar ] = useMutation(REMOVE_STAR)
 
   const { query } = state
 
@@ -63,10 +86,8 @@ const Body = () => {
   }
 
 
-  console.log({query})
   
   const render = () => {
-    console.log(data.search)
     const search = data.search;
     const repositoryCount = search.repositoryCount;
     const repositoryUnit = repositoryCount === 1 ? 'Repository' : 'Repositories'
@@ -80,7 +101,7 @@ const Body = () => {
             return (
               <li key={node.id}>
                 <a href={node.url} target="_blank" rel="noopener noreferrer">{node.name}</a> &nbsp;
-                <StarButton node={node} addStar={addStar} removeStar={removeStar}/>
+                <StarButton node={node} addStar={addStar} removeStar={removeStar} state={state}/>
               </li>
             )
           })}
