@@ -12,6 +12,14 @@ const DEFAULT_STATE = {
   "query": "フロントエンドエンジニア"
 }
 
+const StarButton = props => {
+  console.log(props.node);
+  const totalCount = props.node.stargazers.totalCount
+  return <button>{totalCount === 1? "1 star": `${totalCount} stars`}</button>
+}
+
+
+
 const Body = () => {
   const [ state, setState ] = useState(DEFAULT_STATE)
   const { loading, error, data } = useQuery(SEARCH_REPOSITORIES, { variables: state })
@@ -55,7 +63,8 @@ const Body = () => {
             const { node } = edge;
             return (
               <li key={node.id}>
-                <a href={node.url} target="_blank" rel="noopener noreferrer">{node.name}</a>
+                <a href={node.url} target="_blank" rel="noopener noreferrer">{node.name}</a> &nbsp;
+                <StarButton node={node} />
               </li>
             )
           })}
