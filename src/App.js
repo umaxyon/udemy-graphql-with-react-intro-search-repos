@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { ApolloProvider, useQuery, useMutation } from '@apollo/client'
 import client from './client'
 import { SEARCH_REPOSITORIES, ADD_STAR, REMOVE_STAR } from './graphql'
@@ -9,7 +9,7 @@ const DEFAULT_STATE = {
   "after": null,
   "last":  null,
   "before": null,
-  "query": "フロントエンドエンジニア"
+  "query": ""
 }
 
 const StarButton = props => {
@@ -58,6 +58,7 @@ const StarButton = props => {
 
 
 const Body = () => {
+  const inputRef = useRef();
   const [ state, setState ] = useState(DEFAULT_STATE)
   const { loading, error, data, refetch } = useQuery(SEARCH_REPOSITORIES, { variables: state })
   const [ addStar ] = useMutation(ADD_STAR)
@@ -65,9 +66,9 @@ const Body = () => {
 
   const { query } = state
 
-  const handleChange = (e) => {
+  const handleSubmit = () => {
     setState({
-      ...DEFAULT_STATE, query: e.target.value
+      ...DEFAULT_STATE, query: inputRef.current.value
     })
   }
   const goNext = (search) => {
@@ -115,7 +116,8 @@ const Body = () => {
   }
   return (
     <form>
-      <input value={query || ""} onChange={handleChange} />
+      <input ref={inputRef} />
+      <input type="button" value="submit" onClick={handleSubmit}/>
     {
       (loading) ? (
         'Loading...' 
